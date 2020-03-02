@@ -1,51 +1,59 @@
 from random import shuffle, choice, randint
 import sqlite3
 from sqlite3 import Error
+from datetime import datetime, timedelta
+import json
 
 class Database:
 
-    def __init__(self, path="exam.db"):
+    def __init__(self, path="database.db"):
         try:
             self.connection = sqlite3.connect(path)
             print("Connection is established: Database is created in memory")
         except Error:
             print(Error)
-        finally:
-            self.connection.close()
     
-    def __exist__(self, table):
+    def _exist_(self, table):
         cursor = self.connection.cursor()
         cursor.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{}'".format(table))
         if cursor.fetchone()[0] == 1: 
             return True
+        self.connection.commit()
         return False
 
-    def create(self):
-        if self.__exist__("users"):
-            cursor = self.connection.cursor()
-            cursor.execute("CREATE TABLE users(id integer PRIMARY KEY, quiz text, done text, start date, finish date)")
-            self.connection.commit()
-
-    def insert(self, data):
+    def create(self, table, fields):
         cursor = self.connection.cursor()
-        cursor.execute(data)
+        cursor.execute("CREATE TABLE IF NOT EXISTS {}({})".format(table, fields))
         self.connection.commit()
 
+    def insert(self, query, values):
+        cursor = self.connection.cursor()
+        cursor.execute(query, values)
+        self.connection.commit()
+        cursor.close()
+
+class ExamDataBase(Database):
+
+    def __init__(self, path="exam.db"):
+        super().__init__(path)
+        self.create("users", "id integer PRIMARY KEY, questions text, done text, start date, finish date")
+
+    def insertUser(self, *args):
+        self.insert("INSERT INTO users(id, questions, done, start, finish) VALUES(?, ?, ?, ?, ?)", list(args))
 
 class Exam:
 
-    def __init__(self, quiz=None):
-        self.quiz = dict(quiz)
-        self.database = Database("exam.db").create()
+    def __init__(self, quiz={}, path="exam.db"):
+        self.questions = dict(quiz["questions"])
+        self.options = dict(quiz["options"])
+        self.database = ExamDataBase(path)
+        self.__addUser__("Lik")
 
     def __addUser__(self, user):
-        self.database.insert("INSERT INTO users(id, quiz, done, start, finish) VALUES({}, {}, {}, {}, {})".format(
-            user, 
-            dict(self.quiz),
-            {},
-            
-            )
-
+        start = datetime.now()
+        finish = start + timedelta(minutes=self.options["time"])
+        self.database.insertUser(user, json.dumps(dict(self.questions)), json.dumps({}), start, finish)
+'''
     def __checkUser__(self, user):
         if self.users and user in self.users:
             return True
@@ -92,7 +100,7 @@ class Exam:
         self.users[user]["done"] += 1
         return True
 
-class Point:
+class Point():
 
     def __init__(self, item=None):
         self.item = tuple(item)
@@ -107,3 +115,4 @@ class Point:
 
     def __answer__(self):
         return self.item[1][0]
+'''

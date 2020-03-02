@@ -1,10 +1,9 @@
-#from exam import Exam
+from exam import Exam
 import telebot
 
-token = open("token.txt", "r").read()
-
 # Exam Block
-QIUZ = {
+QUIZ = { 
+    "questions": {
     "Сколько океанов на нашей планете?": ["5", "4", "6"],
     "Единица измерения силы тока - это:": ["Ампер", "Вольт", "Ватт"],
     "Сатурн - это какая по счету планета от Солнца?": ["6", "7", "8"],
@@ -15,10 +14,15 @@ QIUZ = {
     "Зеленый пигмент, окрашивающий листья растений, называется:": ["Хлорофилл", "Хлоропласт", "Хлорофиллипт"],
     "Желчь образуется в:": ["Печени", "Желчном пузыре", "Поджелудочной железе"],
     "Сколько хромосом в геноме человека?": ["46", "42", "44"]
+    },
+    "options": {
+        "time": 30,
+        "point": 1
+    }
 }
 
 # Initialization Exam
-#exam = Exam(QIUZ)
+exam = Exam(QUIZ, "exam.db")
 
 
 
@@ -35,6 +39,7 @@ QIUZ = {
 
 '''
 # Telegram Block
+token = open("token.txt", "r").read()
 bot = telebot.TeleBot(token)
 me = bot.get_me()
 
