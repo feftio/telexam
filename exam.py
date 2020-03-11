@@ -13,13 +13,8 @@ class Database:
         except Error:
             print(Error)
     
-    def _exist_(self, table):
-        cursor = self.connection.cursor()
-        cursor.execute("SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{}'".format(table))
-        if cursor.fetchone()[0] == 1: 
-            return True
-        self.connection.commit()
-        return False
+    def _exist_(self):
+        pass
 
     def create(self, table, fields):
         cursor = self.connection.cursor()
@@ -32,33 +27,34 @@ class Database:
         self.connection.commit()
         cursor.close()
 
-class ExamDataBase(Database):
+class ExamDatabase(Database):
 
     def __init__(self, path="exam.db"):
         super().__init__(path)
-        self.create("users", "id integer PRIMARY KEY, questions text, done text, start date, finish date")
+        self.create("users", "id integer PRIMARY KEY, name text, date date")
+        self.create("currents", "id integer, questions json, done json, start date, finish date")
 
     def insertUser(self, *args):
-        self.insert("INSERT INTO users(id, questions, done, start, finish) VALUES(?, ?, ?, ?, ?)", list(args))
+        self.insert("INSERT INTO users(id, name, date) VALUES(?, ?, ?)", list(args))
+
+    def insertCurrent(self, *args):
+        self.insert("INSERT INTO currents(id, questions, done, start, finish) VALUES(?, ?, ?, ?, ?)", list(args))
 
 class Exam:
 
     def __init__(self, quiz={}, path="exam.db"):
         self.questions = dict(quiz["questions"])
         self.options = dict(quiz["options"])
-        self.database = ExamDataBase(path)
-        self.__addUser__("Lik")
+        self.database = ExamDatabase(path)
 
     def __addUser__(self, user):
         start = datetime.now()
         finish = start + timedelta(minutes=self.options["time"])
         self.database.insertUser(user, json.dumps(dict(self.questions)), json.dumps({}), start, finish)
-'''
+
     def __checkUser__(self, user):
-        if self.users and user in self.users:
-            return True
-        return False
-    
+
+'''   
     def __checkAnswer__(self, user, answer):
         answers = list(self.users[user]["current"][1])
         return answers[0] == answer
