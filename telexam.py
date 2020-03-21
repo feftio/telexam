@@ -2,8 +2,7 @@ from exam import Exam
 import telebot
 
 # Exam Block
-QUIZ = { 
-    "questions": {
+quiz = { 
     "Сколько океанов на нашей планете?": ["5", "4", "6"],
     "Единица измерения силы тока - это:": ["Ампер", "Вольт", "Ватт"],
     "Сатурн - это какая по счету планета от Солнца?": ["6", "7", "8"],
@@ -14,15 +13,28 @@ QUIZ = {
     "Зеленый пигмент, окрашивающий листья растений, называется:": ["Хлорофилл", "Хлоропласт", "Хлорофиллипт"],
     "Желчь образуется в:": ["Печени", "Желчном пузыре", "Поджелудочной железе"],
     "Сколько хромосом в геноме человека?": ["46", "42", "44"]
-    },
-    "options": {
-        "time": 30,
-        "point": 1
-    }
+}
+
+user = {
+    "id": 54353,
+    "nick": "Lik Eduard"
+}
+
+options = {
+    "time": 30,
+    "point": 1
 }
 
 # Initialization Exam
-exam = Exam(QUIZ, "exam.db")
+exam = Exam("exam.db")
+loader = exam.loader(324325)
+
+exam.export(name="Test1", exam=quiz, minutes=30, points=1)
+
+
+exam.register(user)
+
+
 
 
 
