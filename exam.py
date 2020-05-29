@@ -5,12 +5,6 @@ from datetime import datetime, timedelta
 import json
 
 
-
-
-
-#################################################
-################ Class: Database ################
-#################################################
 class Database:
 
     def __init__(self, path="database.db"):
@@ -20,7 +14,7 @@ class Database:
         except Error:
             print(Error)
     
-    def _exist_(self, table, field, where):
+    def _exist(self, table, field, where):
         cursor = self.connection.cursor()
         cursor.execute("SELECT {} FROM {} WHERE {}".format(field, table, where))
         self.connection.commit()
@@ -28,53 +22,81 @@ class Database:
             return False
         return True
 
-    def _create_(self, table, fields):
+    def _create(self, table, fields):
         cursor = self.connection.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS {}({})".format(table, fields))
         self.connection.commit()
 
-    def _insert_(self, query, values):
+    def _insert(self, query, values):
         cursor = self.connection.cursor()
         cursor.execute(query, values)
         self.connection.commit()
 
 
-
-
-
-#################################################
-############## Class: ExamDatabase ##############
-#################################################
 class ExamDatabase(Database):
 
     def __init__(self, path="exam.db"):
         super().__init__(path)
-        self._create_("exams", "name text PRIMARY KEY, exam json, minutes integer, points integer")
-        self._create_("users", "id integer PRIMARY KEY, nick text, date date, admin bool")
-        self._create_("units", "id integer, name text, questions json, answers json, start date, finish date")
+        self._create("exams", "id integer PRIMARY KEY, name text, exam json, minutes integer, points integer")
+        self._create("users", "id integer PRIMARY KEY, name text, date date, admin bool")
+        self._create("units", "id integer PRIMARY KEY, name text, questions json, answers json, start date, finish date")
 
     def insertExam(self, *args):
-        self._insert_("INSERT INTO exams(name, exam, minutes, points) VALUES(?, ?, ?, ?)", list(args))
+        self._insert("INSERT INTO exams(id, name, exam, minutes, points) VALUES(?, ?, ?, ?, ?)", list(args))
 
     def insertUser(self, *args):
-        self._insert_("INSERT INTO users(id, name, date) VALUES(?, ?, ?)", list(args))
+        self._insert("INSERT INTO users(id, name, date, admin) VALUES(?, ?, ?, ?)", list(args))
 
     def insertUnit(self, *args):
-        self._insert_("INSERT INTO units(id, questions, done, start, finish) VALUES(?, ?, ?, ?, ?)", list(args))
+        self._insert("INSERT INTO units(id, name, questions, answers, start, finish) VALUES(?, ?, ?, ?, ?, ?)", list(args))
 
     def existExam(self, name):
-        return self._exist_("exams", "name", "name={}".format(name))
+        return self._exist("exams", "id", "id={}".format(name))
     
     def existUser(self, id):
-        return self._exist_("users", "id", "id={}".format(id))
+        return self._exist("users", "id", "id={}".format(id))
+
+    def existUnit(self, id):
+        return self._exist("units", "id", "id={}".format(id))
+
+
+class Exam:
+
+    # Constructor
+    def __init__(self, path="exam.db"):
+        self.__database = ExamDatabase(path)
+    
+    # Private
+    def __addUser(self, user, isAdmin=False):
+        if not self.__database.existUser(user["id"])
+            self.__database.insertUser(user["id"], user["nick"], datetime.now(), isAdmin)
+    
+    def __addUnit(self, user):
+        if not self.__database.existUnit():
+            start = datetime.now()
+            finish = start + timedelta(minutes=30)
+            self.__database__.insertUnit(name, json.dumps(dict(self.__questions__)), json.dumps({}), start, finish)
+
+    # Public
+    def getQuestion(self, user):
+        self.__addUser(user)
+        self.__addUnit(user)
+        # finish
+
+    def sendAnswer(self, user, answer):
+        pass
 
 
 
 
 
-#################################################
-################## Class: Exam ##################
-#################################################
+
+
+
+
+
+
+"""
 class Exam:
 
 ##  Constructor Method
@@ -84,15 +106,15 @@ class Exam:
 
 ##  Private Methods
 
-    def __addUser__(self, user):
+    def __addUser(self, user):
         self.__database__.insertUser(user["id"], user["nick"], datetime.now())
 
-    def __addUnit__(self, name, nick):
+    def __addUnit(self, name, nick):
         start = datetime.now()
         finish = start + timedelta(minutes=30)
         self.__database__.insertUnit(name, json.dumps(dict(self.__questions__)), json.dumps({}), start, finish)
 
-    def __existUser__(self, id):
+    def __existUser(self, id):
         return self.__database__.existUser(id)
 
 ##  Public Methods
@@ -101,7 +123,7 @@ class Exam:
         return Loader(self.__database__, uid)
 
     def register(self, uid, nick):
-        if not(self.__existUser__(uid)):
+        if not(self.__existUser(uid)):
             self.__database__.insertUser(uid, nick, datetime.now())
             return True
         return False
@@ -110,12 +132,6 @@ class Exam:
         pass
 
 
-
-
-
-#################################################
-################# Class: Loader #################
-#################################################
 class Loader:
 
     def __init__(self, database, uid):
@@ -127,75 +143,4 @@ class Loader:
             self.__database.insertExam(name, exam, minutes, points)
             return True
         return False
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''   
-    def __checkAnswer__(self, user, answer):
-        answers = list(self.users[user]["current"][1])
-        return answers[0] == answer
-
-    def __shiftQuestion__(self, user):
-        if not(self.users[user]["quiz"]):
-            return False
-        key = choice(list(self.users[user]["quiz"].keys()))
-        value = self.users[user]["quiz"][key]
-        del self.users[user]["quiz"][key]
-        self.users[user]["current"] = (key, value)
-        return self.users[user]["current"]
-    
-    def getUsers(self):
-        return self.users.keys()
-
-    def getUserInfo(self, user):
-        return {
-            "still": len(self.users[user]["quiz"]),
-            "done": self.users[user]["done"],
-            "current": self.users[user]["current"],
-            "points": self.users[user]["points"]
-        }
-
-    def getQuestion(self, user):
-        if not(self.__checkUser__(user)):
-            self.__addUser__(user)
-            self.__shiftQuestion__(user)
-        current = self.users[user]["current"]
-        return Point(current)
-    
-    def sendAnswer(self, user, answer):
-        if not(self.__checkUser__(user)):
-            return "The user didn't start the test."
-        if not(self.__shiftQuestion__(user)):
-            return "The quiz is finished."
-        if self.__checkAnswer__(user, answer):
-            self.users[user]["points"] += 1
-        self.users[user]["done"] += 1
-        return True
-  
-
-class Point():
-
-    def __init__(self, item=None):
-        self.item = tuple(item)
-
-    def question(self):
-        return self.item[0]
-
-    def answers(self):
-        answers = list(self.item[1])
-        shuffle(answers)
-        return answers
-
-    def __answer__(self):
-        return self.item[1][0]
-''' 
+"""

@@ -1,7 +1,7 @@
 from exam import Exam
 import telebot
 
-# Exam Block
+# The end of the exam block
 quiz = { 
     "Сколько океанов на нашей планете?": ["5", "4", "6"],
     "Единица измерения силы тока - это:": ["Ампер", "Вольт", "Ватт"],
@@ -15,6 +15,7 @@ quiz = {
     "Сколько хромосом в геноме человека?": ["46", "42", "44"]
 }
 
+# Params
 user = {
     "id": 54353,
     "nick": "Lik Eduard"
@@ -25,20 +26,9 @@ options = {
     "point": 1
 }
 
-# Initialization Exam
+# Initialization exam
 exam = Exam("exam.db")
-loader = exam.loader(324325)
-
-exam.export(name="Test1", exam=quiz, minutes=30, points=1)
-
-
-exam.register(user)
-
-
-
-
-
-
+exam.send(user["id"])
 
 
 
