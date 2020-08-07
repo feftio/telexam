@@ -1,7 +1,7 @@
 from random import shuffle, choice, randint
-import sqlite3
-from sqlite3 import Error
 from datetime import datetime, timedelta
+from sqlite3 import Error
+import sqlite3
 import json
 
 
@@ -37,27 +37,27 @@ class ExamDatabase(Database):
 
     def __init__(self, path="exam.db"):
         super().__init__(path)
-        self._create("exams", "id integer PRIMARY KEY, name text, exam json, minutes integer, points integer")
-        self._create("users", "id integer PRIMARY KEY, name text, date date, admin bool")
-        self._create("units", "id integer PRIMARY KEY, name text, questions json, answers json, start date, finish date")
+        self._create("tests", "id_test integer PRIMARY KEY, name text, test json, minutes integer, points integer")
+        self._create("users", "id_user integer PRIMARY KEY, name text, date date, admin bool")
+        self._create("units", "id_test integer, id_user text, questions json, answers json, start date, finish date")
 
-    def insertExam(self, *args):
-        self._insert("INSERT INTO exams(id, name, exam, minutes, points) VALUES(?, ?, ?, ?, ?)", list(args))
+    def insert_test(self, *args):
+        self._insert("INSERT INTO tests(id_test, name, test, minutes, points) VALUES(?, ?, ?, ?, ?)", list(args))
 
-    def insertUser(self, *args):
-        self._insert("INSERT INTO users(id, name, date, admin) VALUES(?, ?, ?, ?)", list(args))
+    def insert_user(self, *args):
+        self._insert("INSERT INTO users(id_user, name, date, admin) VALUES(?, ?, ?, ?)", list(args))
 
-    def insertUnit(self, *args):
-        self._insert("INSERT INTO units(id, name, questions, answers, start, finish) VALUES(?, ?, ?, ?, ?, ?)", list(args))
+    def insert_unit(self, *args):
+        self._insert("INSERT INTO units(id_test, id_user, questions, answers, start, finish) VALUES(?, ?, ?, ?, ?, ?)", list(args))
 
-    def existExam(self, name):
-        return self._exist("exams", "id", "id={}".format(name))
+    def exist_test(self, id):
+        return self._exist("tests", "id_test", "id_test={}".format(id))
     
-    def existUser(self, id):
-        return self._exist("users", "id", "id={}".format(id))
+    def exist_user(self, id):
+        return self._exist("users", "id_user", "id_user={}".format(id))
 
-    def existUnit(self, id):
-        return self._exist("units", "id", "id={}".format(id))
+    def exist_unit(self, id):
+        return self._exist("units", "id_test, id_user", "id_test={} AND id_user={}".format(id_test, id_user))
 
 
 class Exam:
@@ -67,80 +67,29 @@ class Exam:
         self.__database = ExamDatabase(path)
     
     # Private
-    def __addUser(self, user, isAdmin=False):
-        if not self.__database.existUser(user["id"])
-            self.__database.insertUser(user["id"], user["nick"], datetime.now(), isAdmin)
+    def __add_user(self, user, is_admin=False):
+        if not self.__database.exist_user(user["id"])
+            self.__database.insert_user(user["id"], user["name"], datetime.now(), is_admin)
     
-    def __addUnit(self, user):
-        if not self.__database.existUnit():
+    def __add_unit(self, test):
+        if not self.__database.exist_unit():
             start = datetime.now()
             finish = start + timedelta(minutes=30)
-            self.__database__.insertUnit(name, json.dumps(dict(self.__questions__)), json.dumps({}), start, finish)
+            self.__database__.insert_unit(name, json.dumps(dict(self.__questions__)), json.dumps({}), start, finish)
 
     # Public
-    def getQuestion(self, user):
-        self.__addUser(user)
-        self.__addUnit(user)
+    def get_question(self, user):
+        self.__add_user(user)
+        self.__add_unit(user)
         # finish
 
-    def sendAnswer(self, user, answer):
+    def send_answer(self, user, answer):
         pass
 
 
-
-
-
-
-
-
-
-
-
-"""
-class Exam:
-
-##  Constructor Method
+class TestManager:
 
     def __init__(self, path="exam.db"):
-        self.__database__ = ExamDatabase(path)
+        self.__database = ExamDatabase(path)
 
-##  Private Methods
-
-    def __addUser(self, user):
-        self.__database__.insertUser(user["id"], user["nick"], datetime.now())
-
-    def __addUnit(self, name, nick):
-        start = datetime.now()
-        finish = start + timedelta(minutes=30)
-        self.__database__.insertUnit(name, json.dumps(dict(self.__questions__)), json.dumps({}), start, finish)
-
-    def __existUser(self, id):
-        return self.__database__.existUser(id)
-
-##  Public Methods
-
-    def loader(self, uid):
-        return Loader(self.__database__, uid)
-
-    def register(self, uid, nick):
-        if not(self.__existUser(uid)):
-            self.__database__.insertUser(uid, nick, datetime.now())
-            return True
-        return False
-
-    def send(self, id, answer):
-        pass
-
-
-class Loader:
-
-    def __init__(self, database, uid):
-        self.__uid = uid
-        self.__database = database
-    
-    def export(self, name, exam, minutes, points):
-        if not(self.__database.existExam(name)):
-            self.__database.insertExam(name, exam, minutes, points)
-            return True
-        return False
-"""
+    def add_test(self, test):

@@ -1,8 +1,8 @@
-from exam import Exam
+from exam import Exam, TestManager
 import telebot
 
 # The end of the exam block
-quiz = { 
+test = { 
     "Сколько океанов на нашей планете?": ["5", "4", "6"],
     "Единица измерения силы тока - это:": ["Ампер", "Вольт", "Ватт"],
     "Сатурн - это какая по счету планета от Солнца?": ["6", "7", "8"],
@@ -18,7 +18,7 @@ quiz = {
 # Params
 user = {
     "id": 54353,
-    "nick": "Lik Eduard"
+    "name": "Lik Eduard"
 }
 
 options = {
@@ -27,9 +27,10 @@ options = {
 }
 
 # Initialization exam
-exam = Exam("exam.db")
-exam.send(user["id"])
+test_manager = TestManager("exam.db").add_exam(test)
+exam = Exam("exam.db").choose()
 
+exam.send(user["name"])
 
 
 
