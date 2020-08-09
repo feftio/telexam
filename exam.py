@@ -1,9 +1,12 @@
 from random import shuffle, choice, randint
 from datetime import datetime, timedelta
 from sqlite3 import Error
+import string
 import sqlite3
 import json
 
+def get_random_test_id():
+    return string.digits
 
 class Database:
 
@@ -37,9 +40,9 @@ class ExamDatabase(Database):
 
     def __init__(self, path="exam.db"):
         super().__init__(path)
-        self._create("tests", "id_test integer PRIMARY KEY, name text, test json, minutes integer, points integer")
-        self._create("users", "id_user integer PRIMARY KEY, name text, date date, admin bool")
-        self._create("units", "id_test integer, id_user text, questions json, answers json, start date, finish date")
+        self._create("tests", "id_test INTEGER NOT NULL PRIMARY KEY, name TEXT NOT NULL PRIMARY KEY, test JSON, minutes INTEGER, points INTEGER")
+        self._create("users", "id_user INTEGER PRIMARY KEY, name TEXT, date DATE, admin BOOL")
+        self._create("units", "id_test INTEGER, id_user TEXT, questions JSON, answers JSON, start DATE, finish DATE")
 
     def insert_test(self, *args):
         self._insert("INSERT INTO tests(id_test, name, test, minutes, points) VALUES(?, ?, ?, ?, ?)", list(args))
@@ -92,4 +95,7 @@ class TestManager:
     def __init__(self, path="exam.db"):
         self.__database = ExamDatabase(path)
 
-    def add_test(self, test):
+    def add_test(self, test_object):
+        if type(test) is dict:
+            id = 34324
+            self.__database.insert_test(test_object)

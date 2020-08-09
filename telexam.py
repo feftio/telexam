@@ -1,7 +1,6 @@
 from exam import Exam, TestManager
 import telebot
 
-# The end of the exam block
 test = { 
     "Сколько океанов на нашей планете?": ["5", "4", "6"],
     "Единица измерения силы тока - это:": ["Ампер", "Вольт", "Ватт"],
@@ -15,6 +14,8 @@ test = {
     "Сколько хромосом в геноме человека?": ["46", "42", "44"]
 }
 
+"""
+------------------------------
 # Params
 user = {
     "id": 54353,
@@ -25,11 +26,18 @@ options = {
     "time": 30,
     "point": 1
 }
+------------------------------
+"""
 
 # Initialization exam
-test_manager = TestManager("exam.db").add_exam(test)
-exam = Exam("exam.db").choose()
+test_manager = TestManager("exam.db").add_exam({
+    "name": "Test 1",
+    "test": test,
+    "time": 30,
+    "point": 1
+})
 
+exam = Exam("exam.db").choose()
 exam.send(user["name"])
 
 
