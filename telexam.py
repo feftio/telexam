@@ -14,20 +14,10 @@ test = {
     "Сколько хромосом в геноме человека?": ["46", "42", "44"]
 }
 
-"""
-------------------------------
-# Params
 user = {
-    "id": 54353,
+    "id": 1231412,
     "name": "Lik Eduard"
 }
-
-options = {
-    "time": 30,
-    "point": 1
-}
-------------------------------
-"""
 
 # Initialization exam
 test_manager = TestManager("exam.db").add_exam({
@@ -37,8 +27,8 @@ test_manager = TestManager("exam.db").add_exam({
     "point": 1
 })
 
-exam = Exam("exam.db").choose()
-exam.send(user["name"])
+exam = Exam("exam.db")
+exam.choose_test(user, "Test 1")
 
 
 
