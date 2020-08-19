@@ -28,6 +28,9 @@ test_manager = TestManager("exam.db").add_exam({
 })
 
 exam = Exam("exam.db")
+
+#exam.get_testlist()
+
 exam.choose_test(user, "Test 1")
 
 

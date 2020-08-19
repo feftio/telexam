@@ -10,18 +10,20 @@ def get_random_test_id():
 
 class Database:
 
+    # CONSTRUCTOR
     def __init__(self, path="database.db"):
         try:
             self.connection = sqlite3.connect(path)
             print("Connection is established: Database is created in memory")
         except Error:
             print(Error)
-
+    
+    # PROTECTED
     def _select(self, table, fields, where=None):
         cursor = self.connection.cursor()
         cursor.execute("SELECT {} FROM {}".format(fields, table))
         return cursor.fetchall()
-
+    
     def _exist(self, table, field, where):
         cursor = self.connection.cursor()
         cursor.execute("SELECT {} FROM {} WHERE {}".format(field, table, where))
@@ -43,12 +45,14 @@ class Database:
 
 class ExamDatabase(Database):
 
+    # CONSTRUCTOR
     def __init__(self, path="exam.db"):
         super().__init__(path)
         self._create("tests", "test_id INTEGER NOT NULL PRIMARY KEY, test_name TEXT NOT NULL PRIMARY KEY, test JSON, minutes INTEGER, points INTEGER")
         self._create("users", "user_id INTEGER PRIMARY KEY, user_name TEXT, reg_date DATE, is_admin BOOL")
         self._create("units", "test_id INTEGER, user_id TEXT, questions JSON, answers JSON, start DATE, finish DATE")
-
+    
+    # INSERT
     def insert_test(self, *args):
         self._insert("INSERT INTO tests(test_id, test_name, test, minutes, points) VALUES(?, ?, ?, ?, ?)", list(args))
 
@@ -58,6 +62,7 @@ class ExamDatabase(Database):
     def insert_unit(self, *args):
         self._insert("INSERT INTO units(test_id, user_id, questions, answers, start, finish) VALUES(?, ?, ?, ?, ?, ?)", list(args))
 
+    # EXIST
     def exist_test(self, test_id):
         return self._exist("tests", "test_id", "test_id={}".format(test_id))
     
@@ -67,17 +72,18 @@ class ExamDatabase(Database):
     def exist_unit(self, test_id, user_id):
         return self._exist("units", "test_id, user_id", "test_id={} AND user_id={}".format(test_id, user_id))
 
+    # GENERAL
     def get_testlist(self):
         return self._select("tests", "test_name")
 
 
 class Exam:
 
-    # Constructor
+    # CONSTRUCTOR
     def __init__(self, path="exam.db"):
         self.__database = ExamDatabase(path)
     
-    # Private
+    # PRIVATE
     def __add_user(self, user, is_admin=False):
         if not self.__database.exist_user(user["id"])
             self.__database.insert_user(user["id"], user["name"], datetime.now(), is_admin)
@@ -88,7 +94,7 @@ class Exam:
             finish = start + timedelta(minutes=30)
             self.__database__.insert_unit(name, json.dumps(dict(self.__questions__)), json.dumps({}), start, finish)
 
-    # Public
+    # PUBLIC
     def get_testlist(self):
         return self.__database.get_testlist()
 
@@ -98,27 +104,36 @@ class Exam:
     def get_question(self, user):
         self.__add_user(user)
         self.__add_unit(user)
-        # finish
+        # todo
 
     def send_answer(self, user, answer):
         pass
 
 
 class TestManager:
-
+    
+    # CONSTRUCTOR
     def __init__(self, path="exam.db"):
         self.__database = ExamDatabase(path)
-
+    
+    # PUBLIC
     def add_test(self, test_dict):
-        id = 12345
-        name = test_dict["name"]
-        test = test_dict["test"]
-        time = test_dict["time"]
+        id =    12345
+        name =  test_dict["name"]
+        test =  test_dict["test"]
+        time =  test_dict["time"]
         point = test_dict["point"]
         self.__database.insert_test(test_dict)
+    
+    def modify_test(self, test_name):
+        pass
+
+    def delete_test(self, test_name):
+        pass
 
 class Validator:
-
+    
+    # CONSTRUCTOR
     def __init__(self):
         pass
 
