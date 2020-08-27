@@ -118,10 +118,10 @@ class TestManager:
     
     # PUBLIC
     def add_test(self, test_dict):
-        id =    12345
-        name =  test_dict["name"]
-        test =  test_dict["test"]
-        time =  test_dict["time"]
+        id = 12345
+        name = test_dict["name"]
+        test = test_dict["test"]
+        time = test_dict["time"]
         point = test_dict["point"]
         self.__database.insert_test(test_dict)
     
