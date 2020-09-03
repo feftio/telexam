@@ -20,7 +20,7 @@ user = {
 }
 
 # Initialization exam
-test_manager = TestManager("exam.db").add_test(
+TestManager("exam.db").add_test(
     name="Test 1",
     test=test,
     time=30,
@@ -28,14 +28,13 @@ test_manager = TestManager("exam.db").add_test(
 )
 
 
+
+
 exam = Exam("exam.db")
-exam.get_question()
+exam.choose_test(user, "Test 1")
+exam.get_question(user)
 
 #exam.get_testlist()
-
-exam.choose_test(user, "Test 1")
-
-
 
 
 
